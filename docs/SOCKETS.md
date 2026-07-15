@@ -1,4 +1,4 @@
-# Socket Events — Digital Campfire
+# Socket Events - Digital Campfire
 
 Library: **Socket.IO**
 Transport: WebSocket (with HTTP long-poll fallback)
@@ -44,7 +44,7 @@ User requests to enter matchmaking.
 
 ```ts
 socket.emit("joinQueue", {
-  languages: string[],  // ISO codes: ["en", "hi"] — userId resolved server-side from session
+  languages: string[],  // ISO codes: ["en", "hi"] - userId resolved server-side from session
 });
 ```
 
@@ -81,7 +81,7 @@ socket.emit("joinRoom", {
 ```
 
 **Server behavior:**
-- `socket.join(roomId)` — adds socket to room channel
+- `socket.join(roomId)` - adds socket to room channel
 - Validates user is a participant in that room (DB check)
 - Emits nothing back (client already has room data from REST)
 
@@ -209,7 +209,7 @@ socket.to(roomId).emit(...)   // Server: broadcast except sender
 socket.on("disconnect", (reason) => {
   // Server:
   // 1. Remove from queue if present
-  // 2. Do NOT end the room — others continue
+  // 2. Do NOT end the room - others continue
   // 3. Log disconnect (optional)
 });
 

@@ -1,4 +1,4 @@
-# Architecture — Digital Campfire
+# Architecture - Digital Campfire
 
 ## System Overview
 
@@ -118,7 +118,7 @@ Users redirected to /room/[id]
 Socket.IO: users join room channel
       │
       ▼
-Timer running (15 min) — client counts down from expiresAt; server fires roomEnded at expiry
+Timer running (15 min) - client counts down from expiresAt; server fires roomEnded at expiry
       │
       ▼
 Messages flow: sendMessage → messageReceived broadcast

@@ -1,4 +1,4 @@
-# Design System — Digital Campfire
+# Design System - Digital Campfire
 
 Visual language: **Apple minimalism × Nothing monochrome × warm campfire atmosphere**
 
@@ -78,7 +78,7 @@ Large, generous spacing. Nothing crowded.
 ## Borders & Corners
 
 - Border radius: `rounded-xl` (12px) or `rounded-2xl` (16px)
-- Borders: minimal — use `border border-white/10` (very subtle) or none
+- Borders: minimal - use `border border-white/10` (very subtle) or none
 - No heavy dividers
 
 ---

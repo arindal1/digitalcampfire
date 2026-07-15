@@ -1,4 +1,4 @@
-# Project Map — Digital Campfire
+# Project Map - Digital Campfire
 
 Complete file and folder structure for the Next.js 15 monorepo.
 
@@ -27,7 +27,7 @@ digital-campfire/
 
 ---
 
-## app/ — Pages & Routing
+## app/ - Pages & Routing
 
 ```
 app/
@@ -41,11 +41,11 @@ app/
 │       └── page.tsx            # /register
 │
 ├── lobby/
-│   └── page.tsx                # /lobby — requires auth
+│   └── page.tsx                # /lobby - requires auth
 │
 ├── room/
 │   └── [id]/
-│       └── page.tsx            # /room/[id] — requires auth + participant
+│       └── page.tsx            # /room/[id] - requires auth + participant
 │
 └── api/
     ├── auth/
@@ -68,7 +68,7 @@ app/
 
 ---
 
-## components/ — UI Components
+## components/ - UI Components
 
 ```
 components/
@@ -100,7 +100,7 @@ components/
 
 ---
 
-## lib/ — Shared Utilities
+## lib/ - Shared Utilities
 
 ```
 lib/
@@ -114,7 +114,7 @@ lib/
 
 ---
 
-## server/ — Socket.IO Logic
+## server/ - Socket.IO Logic
 
 ```
 server/
@@ -130,7 +130,7 @@ server/
 
 ---
 
-## prisma/ — Database
+## prisma/ - Database
 
 ```
 prisma/
@@ -141,7 +141,7 @@ prisma/
 
 ---
 
-## hooks/ — React Custom Hooks
+## hooks/ - React Custom Hooks
 
 ```
 hooks/
@@ -153,7 +153,7 @@ hooks/
 
 ---
 
-## types/ — TypeScript Types
+## types/ - TypeScript Types
 
 ```
 types/

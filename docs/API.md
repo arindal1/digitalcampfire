@@ -1,4 +1,4 @@
-# API Routes — Digital Campfire
+# API Routes - Digital Campfire
 
 All HTTP routes are Next.js Route Handlers under `app/api/`.
 Real-time messaging is handled via Socket.IO (see SOCKETS.md).
@@ -209,4 +209,4 @@ All errors follow a consistent shape:
 - Session cookies are `httpOnly`, `secure`, `sameSite: lax`
 - Room access is gated: only verified participants can fetch room data
 - Message content is validated server-side (length ≤ 300) in both REST and Socket.IO
-- No user's real `userId` is exposed to other participants — only anonymous aliases
+- No user's real `userId` is exposed to other participants - only anonymous aliases

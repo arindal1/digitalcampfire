@@ -1,4 +1,4 @@
-# Data Flow — Digital Campfire
+# Data Flow - Digital Campfire
 
 Complete request/response and event flows for every major feature.
 

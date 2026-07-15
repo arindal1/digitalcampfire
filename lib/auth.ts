@@ -23,7 +23,7 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async (user) => {
-          // Server-side age gate — cannot be bypassed via direct API calls
+          // Server-side age gate - cannot be bypassed via direct API calls
           const age = user.age as number | undefined;
           if (!Number.isInteger(age) || (age as number) < 18 || (age as number) > 120) {
             throw new APIError("BAD_REQUEST", { message: "You must be 18 or older to register." });
@@ -34,7 +34,7 @@ export const auth = betterAuth({
             throw new APIError("BAD_REQUEST", { message: "Invalid gender value." });
           }
 
-          // Username: alphanumeric, underscores, hyphens — 3–20 chars
+          // Username: alphanumeric, underscores, hyphens - 3–20 chars
           const username = user.username as string | undefined;
           if (!username || !USERNAME_RE.test(username)) {
             throw new APIError("BAD_REQUEST", {

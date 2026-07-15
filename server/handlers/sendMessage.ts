@@ -19,7 +19,7 @@ export const handleSendMessage = async (
   data: { roomId: string; content: string; tempId?: string },
   userId: string
 ): Promise<void> => {
-  // Rate limit check — prune expired entries first to prevent Map from growing unbounded
+  // Rate limit check - prune expired entries first to prevent Map from growing unbounded
   const now = Date.now();
   for (const [uid, entry] of rateLimits) {
     if (now > entry.resetAt) rateLimits.delete(uid);
@@ -32,7 +32,7 @@ export const handleSendMessage = async (
   rl.count++;
   rateLimits.set(userId, rl);
   if (rl.count > RATE_MAX) {
-    socket.emit("appError", { code: "RATE_LIMITED", message: "Slow down — too many messages." });
+    socket.emit("appError", { code: "RATE_LIMITED", message: "Slow down - too many messages." });
     return;
   }
 
@@ -76,7 +76,7 @@ export const handleSendMessage = async (
       verified: participant.user.verified,
     });
   } catch {
-    // Room was deleted (expired) concurrently — inform sender
+    // Room was deleted (expired) concurrently - inform sender
     socket.emit("appError", { code: "ROOM_EXPIRED", message: "This room has already ended." });
   }
 };
