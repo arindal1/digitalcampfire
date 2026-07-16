@@ -3,15 +3,15 @@ import { MetadataRoute } from "next";
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: "https://digitalcampfire.app",
+      url: "https://digitalcampfire-production.up.railway.app",
       priority: 1,
       changeFrequency: "weekly",
     },
     {
-      url: "https://digitalcampfire.app/login",
+      url: "https://digitalcampfire-production.up.railway.app/login",
     },
     {
-      url: "https://digitalcampfire.app/register",
+      url: "https://digitalcampfire-production.up.railway.app/register",
     },
   ];
 }

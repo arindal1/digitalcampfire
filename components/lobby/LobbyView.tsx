@@ -7,9 +7,14 @@ import { LanguageTags } from "./LanguageTags";
 import { QueueStatus } from "./QueueStatus";
 import { VersionBadge } from "@/components/VersionBadge";
 import { authClient } from "@/lib/auth-client";
+import { Metadata } from "next";
 
 const CAMPFIRE_CLICKS = 7;
 const CAMPFIRE_WINDOW_MS = 3000;
+
+export const metadata: Metadata = {
+  title: "Home",
+};
 
 interface Props {
   username: string;

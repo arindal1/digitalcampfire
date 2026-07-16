@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
     },
 
-    sitemap: "https://digitalcampfire.app/sitemap.xml",
+    sitemap: "https://digitalcampfire-production.up.railway.app/sitemap.xml",
   };
 }

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { EasterEgg } from "@/components/EasterEgg";
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/next"
 
 const geist = Geist({
   subsets: ["latin"],
@@ -10,7 +9,7 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://digitalcampfire.app"),
+  metadataBase: new URL("https://digitalcampfire-production.up.railway.app"),
 
   title: {
     default: "Digital Campfire",
@@ -76,7 +75,7 @@ export const metadata: Metadata = {
     title: "Digital Campfire",
     description:
       "Five strangers. One conversation. Fifteen minutes.",
-    images: ["/image1.png"],
+    images: ["/ss1.png"],
   },
 
   icons: {

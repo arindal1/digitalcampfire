@@ -3,7 +3,7 @@ import Link from "next/link";
 import { LandingAccentText } from "@/components/LandingAccentText";
 
 export const metadata: Metadata = {
-  title: "Home",
+  title: "Digital Campfire",
 };
 
 export default function LandingPage() {
