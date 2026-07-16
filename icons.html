@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Digital Campfire Favicon Generator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Inter, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: #0a0a0a;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px;
+        }
+
+        h1 {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #888;
+            margin-bottom: 40px;
+        }
+
+        .preview {
+            width: 220px;
+            height: 220px;
+            background: black;
+            border-radius: 28px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(255, 255, 255, .08);
+            margin-bottom: 40px;
+        }
+
+        svg {
+            width: 120px;
+            height: 120px;
+        }
+
+        .downloads {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        button {
+            background: #D89B3C;
+            color: black;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        button:hover {
+            filter: brightness(1.08);
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Digital Campfire</h1>
+
+    <p>Minimal SVG favicon generator</p>
+
+    <div class="preview">
+
+        <svg id="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+
+            <!-- Flame -->
+
+            <path fill="#D89B3C" d="
+M50 18
+C60 28 63 37 63 47
+C63 58 56 66 50 72
+C44 66 37 58 37 47
+C37 38 41 31 47 25
+C49 32 52 36 57 40
+C57 33 55 26 50 18Z" />
+
+            <!-- Inner flame -->
+
+            <path fill="#00000022" d="
+M50 34
+C54 39 56 44 56 49
+C56 56 53 60 50 63
+C47 60 44 56 44 49
+C44 44 46 40 49 36
+C50 40 52 43 54 45
+C54 41 53 37 50 34Z" />
+
+            <!-- Logs -->
+
+            <rect x="28" y="74" width="44" height="4" rx="2" fill="#D89B3C" transform="rotate(18 50 76)" />
+
+            <rect x="28" y="74" width="44" height="4" rx="2" fill="#D89B3C" transform="rotate(-18 50 76)" />
+
+        </svg>
+
+    </div>
+
+    <div class="downloads"></div>
+
+    <script>
+
+        const svg = document.getElementById("logo");
+
+        const sizes = [
+            16,
+            32,
+            48,
+            64,
+            96,
+            128,
+            180,
+            192,
+            256,
+            512
+        ];
+
+        const container = document.querySelector(".downloads");
+
+        function downloadSVG() {
+
+            const blob = new Blob(
+                [new XMLSerializer().serializeToString(svg)],
+                {
+                    type: "image/svg+xml"
+                });
+
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+
+            a.href = url;
+            a.download = "campfire.svg";
+
+            a.click();
+
+            URL.revokeObjectURL(url);
+
+        }
+
+        function svgToPNG(size) {
+
+            const xml = new XMLSerializer().serializeToString(svg);
+
+            const svg64 = btoa(xml);
+
+            const image64 = 'data:image/svg+xml;base64,' + svg64;
+
+            const img = new Image();
+
+            img.onload = function () {
+
+                const canvas = document.createElement("canvas");
+
+                canvas.width = size;
+                canvas.height = size;
+
+                const ctx = canvas.getContext("2d");
+
+                ctx.clearRect(0, 0, size, size);
+
+                ctx.drawImage(img, 0, 0, size, size);
+
+                const a = document.createElement("a");
+
+                a.download = `favicon-${size}.png`;
+
+                a.href = canvas.toDataURL("image/png");
+
+                a.click();
+
+            };
+
+            img.src = image64;
+
+        }
+
+        const svgButton = document.createElement("button");
+
+        svgButton.textContent = "Download SVG";
+
+        svgButton.onclick = downloadSVG;
+
+        container.appendChild(svgButton);
+
+        sizes.forEach(size => {
+
+            const btn = document.createElement("button");
+
+            btn.textContent = `${size}px PNG`;
+
+            btn.onclick = () => svgToPNG(size);
+
+            container.appendChild(btn);
+
+        });
+
+    </script>
+
+</body>
+
+</html>

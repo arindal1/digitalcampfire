@@ -26,6 +26,7 @@ pnpm-debug.log*
 node_modules/
 npm-cache/
 .pnpm-store/
+.next/
 
 # Build output
 dist/
