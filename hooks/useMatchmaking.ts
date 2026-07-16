@@ -4,15 +4,19 @@ import { useRouter } from "next/navigation";
 import type { RoomFoundPayload } from "@/types/socket";
 import { getSocket } from "./useSocket";
 
+const QUEUE_TIMEOUT_MS = 5 * 60 * 1_000; // 5 minutes
+
 export const useMatchmaking = (languages: string[]) => {
   const [inQueue, setInQueue] = useState(false);
   const [joining, setJoining] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
   const router = useRouter();
 
   // Ref mirrors inQueue so the effect cleanup can read the latest value without
   // being listed as a dependency (which would re-register listeners on every
   // queue state change). Updated synchronously alongside every setInQueue call.
   const inQueueRef = useRef(false);
+  const queueTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const socket = getSocket();
@@ -23,6 +27,10 @@ export const useMatchmaking = (languages: string[]) => {
       // after a successful match (even if React batches the state update).
       inQueueRef.current = false;
       setInQueue(false);
+      if (queueTimerRef.current) {
+        clearTimeout(queueTimerRef.current);
+        queueTimerRef.current = null;
+      }
       router.push(`/room/${data.roomId}`);
     };
 
@@ -33,6 +41,10 @@ export const useMatchmaking = (languages: string[]) => {
       if (err.code === "RATE_LIMITED" || err.code === "INVALID_LANGUAGES") {
         inQueueRef.current = false;
         setInQueue(false);
+        if (queueTimerRef.current) {
+          clearTimeout(queueTimerRef.current);
+          queueTimerRef.current = null;
+        }
       }
     };
 
@@ -57,6 +69,7 @@ export const useMatchmaking = (languages: string[]) => {
   const join = useCallback(async () => {
     if (joining || inQueue) return;
     setJoining(true);
+    setTimedOut(false);
     try {
       const res = await fetch("/api/queue/join", { method: "POST" });
       if (!res.ok) return;
@@ -64,6 +77,19 @@ export const useMatchmaking = (languages: string[]) => {
       socket.emit("joinQueue", { languages });
       inQueueRef.current = true;
       setInQueue(true);
+
+      // Auto-leave queue after QUEUE_TIMEOUT_MS if no match is found
+      if (queueTimerRef.current) clearTimeout(queueTimerRef.current);
+      queueTimerRef.current = setTimeout(() => {
+        if (!inQueueRef.current) return;
+        inQueueRef.current = false;
+        setInQueue(false);
+        setTimedOut(true);
+        const s = getSocket();
+        s.emit("leaveQueue");
+        fetch("/api/queue/leave", { method: "POST" }).catch(() => {});
+        queueTimerRef.current = null;
+      }, QUEUE_TIMEOUT_MS);
     } catch {
       // Network error - joining resets via finally so the button re-enables
     } finally {
@@ -74,10 +100,14 @@ export const useMatchmaking = (languages: string[]) => {
   const leave = useCallback(async () => {
     inQueueRef.current = false;
     setInQueue(false);
+    if (queueTimerRef.current) {
+      clearTimeout(queueTimerRef.current);
+      queueTimerRef.current = null;
+    }
     const socket = getSocket();
     socket.emit("leaveQueue");
     await fetch("/api/queue/leave", { method: "POST" });
   }, []);
 
-  return { inQueue, joining, join, leave };
+  return { inQueue, joining, join, leave, timedOut };
 };

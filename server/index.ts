@@ -8,6 +8,32 @@ import { handleLeaveQueue } from "./handlers/leaveQueue";
 import { handleJoinRoom } from "./handlers/joinRoom";
 import { handleSendMessage } from "./handlers/sendMessage";
 import { recoverRooms } from "./rooms";
+import prisma from "@/lib/prisma";
+
+// Neon PostgreSQL scales to zero after 5 minutes of inactivity, causing ~2-4s
+// cold-start delays for users. Pinging every 4 minutes (safely under the
+// threshold) keeps the compute branch warm.
+// Set DISABLE_DB_KEEPALIVE=true in .env.local to let the DB scale to zero
+// (e.g. when the server is intentionally idle overnight).
+const DB_KEEPALIVE_INTERVAL_MS = 4 * 60 * 1_000; // 4 minutes
+
+const startDbKeepalive = (): (() => void) => {
+  if (process.env.DISABLE_DB_KEEPALIVE === "true") {
+    console.log("[keepalive] DB keep-alive disabled via DISABLE_DB_KEEPALIVE");
+    return () => {};
+  }
+  const id = setInterval(async () => {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+    } catch {
+      // Swallow — a failed ping is non-fatal; the DB will wake on the next real request
+    }
+  }, DB_KEEPALIVE_INTERVAL_MS);
+  // Allow the Node process to exit even if this interval is still registered
+  id.unref?.();
+  console.log(`[keepalive] DB keep-alive started (interval: ${DB_KEEPALIVE_INTERVAL_MS / 1000}s)`);
+  return () => clearInterval(id);
+};
 
 // Extend socket.data with a verified userId (set by auth middleware, never from client input)
 type SocketData = { userId: string };
@@ -27,6 +53,8 @@ export const initSocketServer = (httpServer: HTTPServer): void => {
   // On startup, recover any rooms that were active when the server last exited.
   // Without this, rooms lose their expiry timers on restart and roomEnded never fires.
   void recoverRooms(io);
+
+  startDbKeepalive();
 
   // Authenticate every socket connection using the Better Auth session cookie.
   // Rejects unauthenticated connections before any event handler runs.

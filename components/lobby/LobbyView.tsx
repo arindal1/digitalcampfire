@@ -17,7 +17,7 @@ interface Props {
 }
 
 export function LobbyView({ username, languages }: Props) {
-  const { inQueue, joining, join, leave } = useMatchmaking(languages);
+  const { inQueue, joining, join, leave, timedOut } = useMatchmaking(languages);
   const [campfireSecret, setCampfireSecret] = useState(false);
   const campfireTimestamps = useRef<number[]>([]);
 
@@ -94,13 +94,21 @@ export function LobbyView({ username, languages }: Props) {
                 </button>
               </div>
             ) : (
-              <button
-                onClick={join}
-                disabled={joining}
-                className="rounded-xl bg-accent px-10 py-4 text-base font-medium text-black transition-all hover:brightness-110 disabled:opacity-50"
-              >
-                {joining ? "Finding a campfire..." : "Join Campfire"}
-              </button>
+              <div className="flex flex-col items-center gap-4">
+                <button
+                  onClick={join}
+                  disabled={joining}
+                  className="rounded-xl bg-accent px-10 py-4 text-base font-medium text-black transition-all hover:brightness-110 disabled:opacity-50"
+                >
+                  {joining ? "Finding a campfire..." : "Join Campfire"}
+                </button>
+
+                {timedOut && (
+                  <p className="text-sm text-secondary/70">
+                    Very few users online, try again later.
+                  </p>
+                )}
+              </div>
             )}
           </div>
         </div>

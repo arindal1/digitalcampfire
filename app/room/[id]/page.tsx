@@ -13,7 +13,14 @@ interface Props {
 
 export default async function RoomPage({ params }: Props) {
   const { id } = await params;
-  const session = await auth.api.getSession({ headers: await headers() });
+
+  let session;
+  try {
+    session = await auth.api.getSession({ headers: await headers() });
+  } catch {
+    // DB unreachable on cold start — safer to send to login than crash
+    redirect("/login");
+  }
   if (!session) redirect("/login");
 
   if (!ROOM_ID_RE.test(id)) redirect("/lobby");

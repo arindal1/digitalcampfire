@@ -47,7 +47,15 @@ export function EasterEgg() {
           The campfire burns brighter for the curious.
         </p>
 
-        <p className="text-xs text-accent/60">~ arindal1</p>
+        <a
+          href="https://linkedin.com/in/arindalchar"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="text-xs text-accent/60 transition-colors hover:text-accent"
+        >
+          ~ arindal1
+        </a>
 
         <p className="mt-6 text-[10px] text-secondary/40">
           click anywhere to close
