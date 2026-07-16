@@ -48,7 +48,7 @@ export function RoomView({ room }: Props) {
       <footer className="shrink-0 bg-background/95 backdrop-blur-sm border-t border-white/8 px-5 py-4">
         <MessageInput onSend={(content) => sendMessage(content, room.myUsername)} />
         {/* Triple-click the version badge to reveal creator credit */}
-        <VersionBadge version="v0.8.0" className="mt-2 text-right text-[10px] text-secondary/30" />
+        <VersionBadge version="v0.8.2" className="mt-2 text-right text-[10px] text-secondary/30" />
       </footer>
     </div>
   );

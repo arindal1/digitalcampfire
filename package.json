@@ -1,6 +1,6 @@
 {
   "name": "digital-campfire",
-  "version": "0.8.0",
+  "version": "0.8.2",
   "private": true,
   "scripts": {
     "dev": "tsx server.ts",
@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
+    "@vercel/analytics": "^2.0.1",
     "better-auth": "^1.6.23",
     "clsx": "^2.1.1",
     "next": "16.2.10",
