@@ -97,7 +97,7 @@ export function RegisterForm() {
         value={form.password} onChange={set("password")} className={inputCls}
       />
       <p className="text-secondary/55 text-xs ml-1">
-        No "forgot password" yet — don't let the fire go out in your memory.
+        No "forgot password" yet - don't let the fire go out in your memory.
       </p>
 
       {/* Age & Gender */}

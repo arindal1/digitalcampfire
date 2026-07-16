@@ -36,7 +36,7 @@ export function VersionBadge({ version = "v0.6.0", className = "" }: Props) {
     <p
       onClick={handleClick}
       className={`cursor-default select-none transition-colors duration-500 ${
-        revealed ? "text-accent/70" : ""
+        revealed ? "text-amber-200" : ""
       } ${className}`}
     >
       {revealed ? "made with 🔥 by arindal1" : version}
