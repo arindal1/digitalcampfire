@@ -9,7 +9,14 @@ const LANG_CODE_RE = /^[a-z]{2,3}$/;
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
-  emailAndPassword: { enabled: true },
+  emailAndPassword: { enabled: true, minPasswordLength: 8 },
+  // Built-in rate limiter: max 10 auth requests per 60-second window per IP.
+  // Mitigates brute-force attacks on /api/auth/sign-in and /api/auth/sign-up.
+  rateLimit: {
+    enabled: true,
+    window: 60,
+    max: 10,
+  },
   user: {
     additionalFields: {
       username:  { type: "string",  required: true,  unique: true, input: true },
@@ -23,7 +30,7 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async (user) => {
-          // Server-side age gate — cannot be bypassed via direct API calls
+          // Server-side age gate - cannot be bypassed via direct API calls
           const age = user.age as number | undefined;
           if (!Number.isInteger(age) || (age as number) < 18 || (age as number) > 120) {
             throw new APIError("BAD_REQUEST", { message: "You must be 18 or older to register." });
@@ -34,7 +41,7 @@ export const auth = betterAuth({
             throw new APIError("BAD_REQUEST", { message: "Invalid gender value." });
           }
 
-          // Username: alphanumeric, underscores, hyphens — 3–20 chars
+          // Username: alphanumeric, underscores, hyphens - 3–20 chars
           const username = user.username as string | undefined;
           if (!username || !USERNAME_RE.test(username)) {
             throw new APIError("BAD_REQUEST", {

@@ -14,6 +14,19 @@ const LANGUAGES = [
   { code: "ja", label: "Japanese" },
   { code: "de", label: "German" },
   { code: "ru", label: "Russian" },
+  { code: "bn", label: "Bengali" },
+  { code: "kn", label: "Kannada" },
+  { code: "ml", label: "Malayalam" },
+  { code: "mr", label: "Marathi" },
+  { code: "ta", label: "Tamil" },
+  { code: "te", label: "Telugu" },
+  { code: "ur", label: "Urdu" },
+  { code: "pa", label: "Punjabi" },
+  { code: "ko", label: "Korean" },
+  { code: "it", label: "Italian" },
+  { code: "tr", label: "Turkish" },
+  { code: "vi", label: "Vietnamese" },
+  { code: "id", label: "Indonesian" },
 ];
 
 const GENDERS = [
@@ -83,6 +96,9 @@ export function RegisterForm() {
         type="password" placeholder="Password" required minLength={8}
         value={form.password} onChange={set("password")} className={inputCls}
       />
+      <p className="text-secondary/55 text-xs ml-1">
+        No "forgot password" yet — don't let the fire go out in your memory.
+      </p>
 
       {/* Age & Gender */}
       <div className="flex flex-col gap-3 p-4 bg-surface-secondary rounded-xl border border-white/10">

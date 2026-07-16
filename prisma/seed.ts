@@ -103,7 +103,7 @@ async function main() {
     if (updated.count > 0) {
       console.log(`Set verified=true for ${adminEmail}`);
     } else {
-      console.warn(`No user found with email ${adminEmail} — create your account first, then re-run the seed.`);
+      console.warn(`No user found with email ${adminEmail} - create your account first, then re-run the seed.`);
     }
   }
 }

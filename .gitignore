@@ -33,6 +33,7 @@ dist/
 build/
 out/
 coverage/
+.next
 
 # Chrome Extension packaging
 *.crx
@@ -43,8 +44,9 @@ WORKFLOW.md
 WORKFLOW.pdf
 MVP.md
 SETUP.md
-notes.txt
+# notes.txt
 dump.txt
+icons.html
 
 # Chrome extension temporary files
 .chrome/

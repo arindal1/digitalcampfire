@@ -26,7 +26,7 @@ export function MessageBubble({ message, isOwn }: Props) {
         )}
       </span>
       <div
-        className={`max-w-xs md:max-w-sm px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+        className={`max-w-xs md:max-w-sm px-4 py-2.5 rounded-2xl text-sm leading-relaxed [overflow-wrap:anywhere] min-w-0 ${
           isOwn
             ? "bg-accent text-black rounded-br-sm"
             : "bg-surface-secondary text-white rounded-bl-sm"

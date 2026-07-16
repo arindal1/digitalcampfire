@@ -44,7 +44,7 @@ export const initSocketServer = (httpServer: HTTPServer): void => {
   });
 
   io.on("connection", (socket) => {
-    // userId is server-verified via the auth middleware — never trust client-supplied values
+    // userId is server-verified via the auth middleware - never trust client-supplied values
     const userId = socket.data.userId;
 
     socket.on("joinQueue", (data) => {

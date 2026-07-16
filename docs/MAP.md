@@ -1,4 +1,4 @@
-# Project Map — Digital Campfire
+# Project Map - Digital Campfire
 
 Complete file and folder structure for the Next.js 15 monorepo.
 
@@ -27,7 +27,7 @@ digital-campfire/
 
 ---
 
-## app/ — Pages & Routing
+## app/ - Pages & Routing
 
 ```
 app/
@@ -41,11 +41,11 @@ app/
 │       └── page.tsx            # /register
 │
 ├── lobby/
-│   └── page.tsx                # /lobby — requires auth
+│   └── page.tsx                # /lobby - requires auth
 │
 ├── room/
 │   └── [id]/
-│       └── page.tsx            # /room/[id] — requires auth + participant
+│       └── page.tsx            # /room/[id] - requires auth + participant
 │
 └── api/
     ├── auth/
@@ -68,25 +68,20 @@ app/
 
 ---
 
-## components/ — UI Components
+## components/ - UI Components
 
 ```
 components/
-├── ui/                         # shadcn/ui primitives (auto-generated)
-│   ├── button.tsx
-│   ├── input.tsx
-│   ├── card.tsx
-│   └── ...
+├── EmberBackground.tsx         # Animated ember particle background (Server Component)
 │
 ├── auth/
 │   ├── LoginForm.tsx
 │   └── RegisterForm.tsx
 │
 ├── lobby/
-│   ├── LobbyView.tsx           # Main lobby layout
-│   ├── JoinButton.tsx          # "Join Campfire" CTA
+│   ├── LobbyView.tsx           # Main lobby layout + "Join Campfire" button
 │   ├── LanguageTags.tsx        # Display user's languages
-│   └── QueueStatus.tsx         # Current waiters + estimated time
+│   └── QueueStatus.tsx         # Animated searching indicator
 │
 └── room/
     ├── RoomView.tsx            # Main room layout
@@ -100,21 +95,19 @@ components/
 
 ---
 
-## lib/ — Shared Utilities
+## lib/ - Shared Utilities
 
 ```
 lib/
-├── auth.ts                     # Better Auth config & helpers
+├── auth.ts                     # Better Auth server config (hooks, validation)
+├── auth-client.ts              # Better Auth browser client (signIn, signOut)
 ├── prisma.ts                   # Prisma client singleton
-├── socket-client.ts            # Socket.IO client instance (singleton)
-├── socket-server.ts            # Socket.IO server setup
-├── matchmaking.ts              # Queue logic (language overlap algorithm)
-└── utils.ts                    # General helpers (cn, formatTime, etc.)
+└── utils.ts                    # General helpers (cn, formatTime, parseLanguages)
 ```
 
 ---
 
-## server/ — Socket.IO Logic
+## server/ - Socket.IO Logic
 
 ```
 server/
@@ -130,7 +123,7 @@ server/
 
 ---
 
-## prisma/ — Database
+## prisma/ - Database
 
 ```
 prisma/
@@ -141,7 +134,7 @@ prisma/
 
 ---
 
-## hooks/ — React Custom Hooks
+## hooks/ - React Custom Hooks
 
 ```
 hooks/
@@ -153,7 +146,7 @@ hooks/
 
 ---
 
-## types/ — TypeScript Types
+## types/ - TypeScript Types
 
 ```
 types/
@@ -168,9 +161,10 @@ types/
 
 ```
 DATABASE_URL=                   # Neon PostgreSQL connection string
-BETTER_AUTH_SECRET=             # Random secret for session signing
-BETTER_AUTH_URL=                # App base URL
-NEXT_PUBLIC_SOCKET_URL=         # Socket.IO server URL
+BETTER_AUTH_SECRET=             # Random 32-byte secret for session signing
+BETTER_AUTH_URL=                # App base URL (server-side)
+NEXT_PUBLIC_APP_URL=            # App base URL (browser-side, same value)
+NEXT_PUBLIC_SOCKET_URL=         # Socket.IO server URL (same as app URL in monorepo)
 ADMIN_EMAIL=                    # (optional) Email to set verified=true via db:seed
 ```
 
@@ -180,21 +174,25 @@ ADMIN_EMAIL=                    # (optional) Email to set verified=true via db:s
 
 ```
 server.ts (entry)
-    └── uses lib/socket-server.ts
-            └── uses server/index.ts
-                    ├── server/queue.ts       (matchmaking state)
-                    └── server/rooms.ts       (room timers)
-                            └── lib/prisma.ts (DB writes)
+    └── server/index.ts           (initSocketServer — auth middleware + event handlers)
+            ├── server/queue.ts   (in-memory matchmaking state)
+            └── server/rooms.ts   (room timers + cleanup)
+                    └── lib/prisma.ts (DB writes)
 
 app/room/[id]/page.tsx
-    └── uses hooks/useRoom.ts
-            ├── uses hooks/useSocket.ts       (lib/socket-client.ts)
-            └── uses GET /api/room/:id
+    └── hooks/useRoom.ts
+            ├── hooks/useSocket.ts  (Socket.IO singleton client)
+            └── GET /api/room/:id
+
+app/lobby/page.tsx
+    └── components/lobby/LobbyView.tsx
+            └── hooks/useMatchmaking.ts
+                    └── hooks/useSocket.ts
 
 components/room/ChatArea.tsx
-    └── uses hooks/useRoom.ts → messages state
+    └── hooks/useRoom.ts → messages state
 components/room/CountdownTimer.tsx
-    └── uses hooks/useCountdown.ts → derived from expiresAt
+    └── hooks/useCountdown.ts → derived from expiresAt
 ```
 
 ---

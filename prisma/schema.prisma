@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Better Auth required models
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Custom fields
+  username  String  @unique
+  languages String  // JSON-encoded array e.g. '["en","hi"]'
+  age       Int
+  gender    String  // "male" | "female" | "other"
+  verified  Boolean @default(false)
+
+  sessions     Session[]
+  accounts     Account[]
+  participants RoomParticipant[]
+  messages     Message[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@map("verification")
+}
+
+// App models
+model Room {
+  id        String   @id @default(cuid())
+  language  String
+  prompt    String
+  startedAt DateTime @default(now())
+  expiresAt DateTime
+
+  participants RoomParticipant[]
+  messages     Message[]
+
+  @@index([expiresAt])
+  @@map("rooms")
+}
+
+model RoomParticipant {
+  roomId   String
+  userId   String
+  username String
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+
+  @@id([roomId, userId])
+  @@index([roomId])
+  @@map("room_participants")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  roomId    String
+  userId    String
+  content   String   @db.VarChar(300)
+  createdAt DateTime @default(now())
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([roomId, createdAt])
+  @@map("messages")
+}
+
+model Prompt {
+  id      String @id @default(cuid())
+  content String
+
+  @@map("prompts")
+}
+
+model Analytics {
+  id               String   @id @default(cuid())
+  participantCount Int      @default(5)
+  prompt           String
+  closedAt         DateTime @default(now())
+  status           String   @default("Closed")
+
+  @@map("analytics")
+}

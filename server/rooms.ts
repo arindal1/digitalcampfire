@@ -10,7 +10,7 @@ export const startRoomTimer = (io: IO, roomId: string, expiresAt: Date): void =>
   // Guard: if a timer is already running for this room, don't create a second one
   if (timers.has(roomId)) return;
 
-  // Tick only drives room expiry — the client calculates its own countdown from expiresAt.
+  // Tick only drives room expiry - the client calculates its own countdown from expiresAt.
   const tick = () => {
     const remaining = Math.max(0, Math.floor((expiresAt.getTime() - Date.now()) / 1000));
     if (remaining <= 0) void closeRoom(io, roomId);
@@ -27,7 +27,7 @@ const doCloseRoom = async (io: IO, roomId: string): Promise<void> => {
   try {
     const room = await prisma.room.findUnique({ where: { id: roomId } });
     if (room) {
-      // Analytics is non-critical — don't let a write failure block room cleanup
+      // Analytics is non-critical - don't let a write failure block room cleanup
       try {
         await prisma.analytics.create({ data: { prompt: room.prompt, closedAt: new Date() } });
       } catch (err) {
@@ -46,7 +46,7 @@ const doCloseRoom = async (io: IO, roomId: string): Promise<void> => {
 
 const closeRoom = async (io: IO, roomId: string): Promise<void> => {
   const timer = timers.get(roomId);
-  // If no timer is found, closeRoom is already in progress for this room — bail out
+  // If no timer is found, closeRoom is already in progress for this room - bail out
   if (!timer) return;
   clearInterval(timer);
   timers.delete(roomId);

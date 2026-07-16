@@ -1,6 +1,6 @@
 {
   "name": "digital-campfire",
-  "version": "0.1.0",
+  "version": "0.6.0",
   "private": true,
   "scripts": {
     "dev": "tsx server.ts",
@@ -13,11 +13,11 @@
     "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@prisma/client": "^7.8.0",
+    "@prisma/client": "^6.19.3",
     "better-auth": "^1.6.23",
     "clsx": "^2.1.1",
     "next": "16.2.10",
-    "prisma": "^7.8.0",
+    "prisma": "^6.19.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "socket.io": "^4.8.3",

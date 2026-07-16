@@ -1,4 +1,4 @@
-# Database Schema — Digital Campfire
+# Database Schema - Digital Campfire
 
 ORM: **Prisma**
 Database: **Neon PostgreSQL**
@@ -48,7 +48,7 @@ model User {
 
 model Room {
   id        String   @id @default(cuid())
-  language  String   // ISO 639-1 code — shared language for this room
+  language  String   // ISO 639-1 code - shared language for this room
   prompt    String   // Conversation prompt text (copied at room creation)
   startedAt DateTime @default(now())
   expiresAt DateTime // startedAt + 15 minutes
@@ -121,7 +121,7 @@ Permanent. Stores all registered accounts.
 | username     | String   | Unique, displayed in room                                             |
 | languages    | String   | JSON-encoded ISO 639-1 array e.g. `["en","hi"]`                      |
 | age          | Int      | User-provided age; must be ≥ 18 (enforced at registration)            |
-| gender       | String   | `"male"` \| `"female"` \| `"other"` — **never shown to other users** |
+| gender       | String   | `"male"` \| `"female"` \| `"other"` - **never shown to other users** |
 | verified     | Boolean  | `false` by default; `true` shows a blue tick beside username in chat  |
 | createdAt    | DateTime | Registration timestamp                                                |
 | updatedAt    | DateTime | Last update timestamp                                                 |
@@ -221,13 +221,13 @@ await prisma.room.delete({ where: { id: roomId } });
 ## Indexes to Add
 
 ```prisma
-// On rooms — for expiry cleanup job
+// On rooms - for expiry cleanup job
 @@index([expiresAt])
 
-// On messages — for room message fetch
+// On messages - for room message fetch
 @@index([roomId, createdAt])
 
-// On room_participants — for participant lookup
+// On room_participants - for participant lookup
 @@index([roomId])
 ```
 
