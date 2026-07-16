@@ -18,10 +18,16 @@ export default async function RoomPage({ params }: Props) {
 
   if (!ROOM_ID_RE.test(id)) redirect("/lobby");
 
-  const room = await prisma.room.findUnique({
-    where: { id },
-    include: { participants: { include: { user: { select: { verified: true } } } } },
-  });
+  let room;
+  try {
+    room = await prisma.room.findUnique({
+      where: { id },
+      include: { participants: { include: { user: { select: { verified: true } } } } },
+    });
+  } catch {
+    // DB unreachable or unexpected error — send user back to lobby instead of crashing
+    redirect("/lobby");
+  }
   if (!room) redirect("/lobby");
 
   const participants = room.participants as ParticipantWithUser[];

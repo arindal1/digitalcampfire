@@ -28,15 +28,19 @@ Create a new user account.
   "username": "johndoe",
   "email": "john@example.com",
   "password": "securepassword123",
+  "age": 25,
+  "gender": "male",
   "languages": ["en", "hi"]
 }
 ```
 
 **Validation:**
-- `username`: 3–20 chars, alphanumeric + underscores, unique
+- `username`: 3–20 chars, alphanumeric + `_` or `-`, unique
 - `email`: valid email format, unique
 - `password`: min 8 characters
-- `languages`: non-empty array, valid ISO 639-1 codes
+- `age`: integer ≥ 18 and ≤ 120 (enforced server-side; never shared with other users)
+- `gender`: `"male"` | `"female"` | `"other"` (stored only; never shown to other users)
+- `languages`: non-empty array of valid ISO 639-1/639-3 codes
 
 **Response 201:**
 ```json

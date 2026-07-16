@@ -1,5 +1,7 @@
 # Digital Campfire
 
+> v0.6
+
 A real-time group chat application that anonymously connects five strangers who share a common language for a 15-minute conversation around a shared prompt. When the timer ends, the room and all its messages are permanently deleted.
 
 ![image](app/image1.png)

@@ -6,12 +6,23 @@ export function middleware(req: NextRequest) {
     req.cookies.get("better-auth.session_token") ??
     req.cookies.get("__Secure-better-auth.session_token");
 
-  if (!sessionToken) {
+  const { pathname } = req.nextUrl;
+  const isAuthPage =
+    pathname === "/" || pathname === "/login" || pathname === "/register";
+
+  // Redirect authenticated users away from public/auth pages
+  if (isAuthPage && sessionToken) {
+    return NextResponse.redirect(new URL("/lobby", req.url));
+  }
+
+  // Redirect unauthenticated users away from protected pages
+  if (!isAuthPage && !sessionToken) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/lobby", "/room/:path*"],
+  matcher: ["/", "/login", "/register", "/lobby", "/room/:path*"],
 };

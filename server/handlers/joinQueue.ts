@@ -3,13 +3,11 @@ import type { Prisma } from "@prisma/client";
 import type { ClientToServerEvents, ServerToClientEvents, RoomFoundPayload } from "@/types/socket";
 import { enqueue, findMatch, removeGroup } from "../queue";
 import { startRoomTimer } from "../rooms";
+import { parseLanguages } from "@/lib/utils";
 import prisma from "@/lib/prisma";
 
 type IO = Server<ClientToServerEvents, ServerToClientEvents>;
 type S = Socket<ClientToServerEvents, ServerToClientEvents>;
-
-// ISO 639-1 / 639-3 codes: 2–3 lowercase letters only
-const LANG_CODE_RE = /^[a-z]{2,3}$/;
 
 // Per-user join cooldown: prevents rapid re-queue spam
 const joinCooldowns = new Map<string, number>();
@@ -19,7 +17,11 @@ export const handleJoinQueue = async (
   io: IO,
   socket: S,
   userId: string,
-  rawLanguages: string[]
+  // The client-supplied languages are intentionally ignored: the server always
+  // fetches the user's registered languages from the DB. Trusting the client
+  // payload would let a malicious user spoof extra languages to dominate the
+  // matchmaking buckets or force matches with specific language groups.
+  _rawLanguages: string[]
 ): Promise<void> => {
   // Rate-limit: enforce a cooldown per user between joinQueue calls.
   // Prune expired entries first to prevent the Map from growing unbounded.
@@ -34,16 +36,17 @@ export const handleJoinQueue = async (
   }
   joinCooldowns.set(userId, now);
 
-  // Validate, sanitize, and deduplicate language codes.
-  // Deduplication is critical: without it a user sending ["en","en","en"] would
-  // count as 3 entries in the "en" matchmaking bucket, making a single user
-  // appear to fill multiple slots toward the 5-user threshold.
-  const languages = Array.isArray(rawLanguages)
-    ? [...new Set(rawLanguages.filter((l): l is string => typeof l === "string" && LANG_CODE_RE.test(l)))].slice(0, 20)
-    : [];
+  // Fetch the user's real registered languages from the DB.
+  // Deduplication via Set is still applied to guard against any corrupt DB data.
+  const userRecord = await prisma.user.findUnique({ where: { id: userId }, select: { languages: true } });
+  if (!userRecord) {
+    socket.emit("appError", { code: "INVALID_LANGUAGES", message: "User not found." });
+    return;
+  }
+  const languages = [...new Set(parseLanguages(userRecord.languages))];
 
   if (languages.length === 0) {
-    socket.emit("appError", { code: "INVALID_LANGUAGES", message: "Provide at least one valid language code." });
+    socket.emit("appError", { code: "INVALID_LANGUAGES", message: "No languages registered on your account." });
     return;
   }
 
@@ -59,7 +62,9 @@ export const handleJoinQueue = async (
       const count = await tx.prompt.count();
       if (count === 0) throw new Error("No prompts available");
 
-      const prompt = await tx.prompt.findFirst({ skip: Math.floor(Math.random() * count) });
+      // orderBy ensures a stable cursor order so the random skip lands on the
+      // correct record regardless of how PostgreSQL iterates the table.
+      const prompt = await tx.prompt.findFirst({ orderBy: { id: "asc" }, skip: Math.floor(Math.random() * count) });
       if (!prompt) throw new Error("No prompts available");
 
       const now = new Date();

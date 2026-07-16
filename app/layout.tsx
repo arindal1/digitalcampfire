@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
+import { EasterEgg } from "@/components/EasterEgg";
 import "./globals.css";
 
 const geist = Geist({
@@ -104,6 +105,7 @@ export default function RootLayout({
     <html lang="en" className={`${geist.variable} h-full`}>
       <body className="min-h-full bg-background text-white antialiased">
         {children}
+        <EasterEgg />
       </body>
     </html>
   );

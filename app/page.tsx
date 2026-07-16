@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { LandingAccentText } from "@/components/LandingAccentText";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -36,7 +37,7 @@ export default function LandingPage() {
           <h1 className="mb-8 text-5xl font-semibold leading-tight md:text-7xl">
             The road is long.
             <br />
-            <span className="text-accent">Rest awhile.</span>
+            <LandingAccentText />
           </h1>
 
           <p className="mx-auto mb-14 max-w-xl text-lg leading-8 text-secondary">

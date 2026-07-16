@@ -9,7 +9,14 @@ const LANG_CODE_RE = /^[a-z]{2,3}$/;
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
-  emailAndPassword: { enabled: true },
+  emailAndPassword: { enabled: true, minPasswordLength: 8 },
+  // Built-in rate limiter: max 10 auth requests per 60-second window per IP.
+  // Mitigates brute-force attacks on /api/auth/sign-in and /api/auth/sign-up.
+  rateLimit: {
+    enabled: true,
+    window: 60,
+    max: 10,
+  },
   user: {
     additionalFields: {
       username:  { type: "string",  required: true,  unique: true, input: true },

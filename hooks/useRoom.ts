@@ -48,16 +48,24 @@ export const useRoom = (roomId: string, myVerified = false) => {
 
     const onRoomEnded = () => router.replace("/lobby");
 
-    // Remove the stuck optimistic message if the server rejects it
+    // ROOM_EXPIRED / NOT_PARTICIPANT are room-level errors: the user can no longer
+    // send anything, so all pending messages are hopeless — remove them all.
+    // Per-message errors (RATE_LIMITED, MESSAGE_TOO_LONG, INVALID_MESSAGE) only
+    // affect the last sent message; remove only that one so any other
+    // optimistic messages already in flight are not discarded incorrectly.
     const onAppError = (err: { code: string }) => {
-      if (
-        err.code === "ROOM_EXPIRED" ||
-        err.code === "NOT_PARTICIPANT" ||
+      if (err.code === "ROOM_EXPIRED" || err.code === "NOT_PARTICIPANT") {
+        setMessages((prev) => prev.filter((m) => !m.pending));
+      } else if (
         err.code === "RATE_LIMITED" ||
         err.code === "MESSAGE_TOO_LONG" ||
         err.code === "INVALID_MESSAGE"
       ) {
-        setMessages((prev) => prev.filter((m) => !m.pending));
+        setMessages((prev) => {
+          const lastPendingIdx = prev.findLastIndex((m) => m.pending);
+          if (lastPendingIdx === -1) return prev;
+          return prev.filter((_, i) => i !== lastPendingIdx);
+        });
       }
     };
 
