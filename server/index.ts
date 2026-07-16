@@ -6,6 +6,7 @@ import { dequeueBySocketId } from "./queue";
 import { handleJoinQueue } from "./handlers/joinQueue";
 import { handleLeaveQueue } from "./handlers/leaveQueue";
 import { handleJoinRoom } from "./handlers/joinRoom";
+import { handleLeaveRoom } from "./handlers/leaveRoom";
 import { handleSendMessage } from "./handlers/sendMessage";
 import { recoverRooms } from "./rooms";
 import prisma from "@/lib/prisma";
@@ -83,6 +84,10 @@ export const initSocketServer = (httpServer: HTTPServer): void => {
 
     socket.on("joinRoom", (data) => {
       void handleJoinRoom(socket, userId, data.roomId);
+    });
+
+    socket.on("leaveRoom", (data) => {
+      handleLeaveRoom(io, socket, data.roomId);
     });
 
     socket.on("sendMessage", (data) => {

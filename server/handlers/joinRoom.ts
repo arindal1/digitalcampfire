@@ -31,5 +31,15 @@ export const handleJoinRoom = async (
     return;
   }
 
+  // Leave any stale room channels from previous sessions before joining the new
+  // room. The socket is a long-lived singleton on the client; without this, a
+  // socket that missed its own socketsLeave (e.g. was offline when roomEnded
+  // fired) would remain subscribed to a dead room channel. If that channel
+  // later receives a roomEnded broadcast (e.g. from recoverRooms on restart),
+  // the client would be incorrectly redirected to lobby.
+  for (const room of socket.rooms) {
+    if (room !== socket.id) socket.leave(room);
+  }
+
   socket.join(roomId);
 };

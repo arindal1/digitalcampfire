@@ -10,6 +10,7 @@ export const useMatchmaking = (languages: string[]) => {
   const [inQueue, setInQueue] = useState(false);
   const [joining, setJoining] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
+  const [roomTransitioning, setRoomTransitioning] = useState(false);
   const router = useRouter();
 
   // Ref mirrors inQueue so the effect cleanup can read the latest value without
@@ -27,6 +28,7 @@ export const useMatchmaking = (languages: string[]) => {
       // after a successful match (even if React batches the state update).
       inQueueRef.current = false;
       setInQueue(false);
+      setRoomTransitioning(true);
       if (queueTimerRef.current) {
         clearTimeout(queueTimerRef.current);
         queueTimerRef.current = null;
@@ -109,5 +111,5 @@ export const useMatchmaking = (languages: string[]) => {
     await fetch("/api/queue/leave", { method: "POST" });
   }, []);
 
-  return { inQueue, joining, join, leave, timedOut };
+  return { inQueue, joining, join, leave, timedOut, roomTransitioning };
 };

@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import type { ClientToServerEvents, ServerToClientEvents } from "@/types/socket";
+import type { ClientToServerEvents, ServerToClientEvents, ReplayData } from "@/types/socket";
 import prisma from "@/lib/prisma";
 
 type IO = Server<ClientToServerEvents, ServerToClientEvents>;
@@ -24,22 +24,93 @@ export const startRoomTimer = (io: IO, roomId: string, expiresAt: Date): void =>
  * Safe to call whether or not a timer is currently running for the room.
  */
 const doCloseRoom = async (io: IO, roomId: string): Promise<void> => {
+  // Fallback replay data used if DB is unavailable or the room is already gone.
+  const emptyReplay: ReplayData = {
+    prompt: "",
+    language: "",
+    languages: [],
+    heatmap: Array(15).fill(0) as number[],
+    totalMessages: 0,
+    startedAt: new Date().toISOString(),
+  };
+  let replay: ReplayData = emptyReplay;
+
   try {
-    const room = await prisma.room.findUnique({ where: { id: roomId } });
+    const room = await prisma.room.findUnique({
+      where: { id: roomId },
+      include: {
+        messages: {
+          select: { createdAt: true },
+          orderBy: { createdAt: "asc" },
+        },
+        participants: {
+          include: { user: { select: { id: true, languages: true } } },
+        },
+      },
+    });
+
     if (room) {
-      // Analytics is non-critical - don't let a write failure block room cleanup
+      // Build 15-bucket heatmap (one bucket per minute of the 15-min session).
+      const heatmap = Array(15).fill(0) as number[];
+      for (const msg of room.messages) {
+        const minute = Math.min(
+          14,
+          Math.max(0, Math.floor((msg.createdAt.getTime() - room.startedAt.getTime()) / 60_000))
+        );
+        heatmap[minute]++;
+      }
+
+      // Collect all unique language codes spoken by the participants.
+      const langSet = new Set<string>([room.language]);
+      for (const p of room.participants) {
+        try {
+          const langs = JSON.parse(p.user.languages) as string[];
+          if (Array.isArray(langs)) langs.forEach((l) => typeof l === "string" && langSet.add(l));
+        } catch {
+          /* malformed JSON — skip */
+        }
+      }
+
+      replay = {
+        prompt: room.prompt,
+        language: room.language,
+        languages: Array.from(langSet),
+        heatmap,
+        totalMessages: room.messages.length,
+        startedAt: room.startedAt.toISOString(),
+      };
+
+      // Increment each participant's all-time campfire count (non-critical).
       try {
-        await prisma.analytics.create({ data: { prompt: room.prompt, closedAt: new Date() } });
+        await prisma.user.updateMany({
+          where: { id: { in: room.participants.map((p) => p.userId) } },
+          data: { campfireCount: { increment: 1 } },
+        });
+      } catch (err) {
+        console.error(`[closeRoom] campfireCount increment failed for room ${roomId}:`, err);
+      }
+
+      // Analytics is non-critical — don't let a write failure block room cleanup.
+      try {
+        await prisma.analytics.create({
+          data: {
+            prompt: room.prompt,
+            closedAt: new Date(),
+            heatmap: JSON.stringify(heatmap),
+            languages: JSON.stringify(Array.from(langSet)),
+          },
+        });
       } catch (err) {
         console.error(`[closeRoom] analytics write failed for room ${roomId}:`, err);
       }
+
       await prisma.room.delete({ where: { id: roomId } }); // cascades messages + participants
     }
   } catch (err) {
     console.error(`[closeRoom] DB cleanup failed for room ${roomId}:`, err);
-    // Fall through: still emit roomEnded so clients are never permanently stuck
+    // Fall through: still emit roomEnded so clients are never permanently stuck.
   } finally {
-    io.to(roomId).emit("roomEnded");
+    io.to(roomId).emit("roomEnded", replay);
     io.in(roomId).socketsLeave(roomId);
   }
 };

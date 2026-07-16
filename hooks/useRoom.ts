@@ -2,11 +2,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { Message } from "@/types/room";
-import type { MessagePayload } from "@/types/socket";
+import type { MessagePayload, ReplayData } from "@/types/socket";
 import { getSocket } from "./useSocket";
 
-export const useRoom = (roomId: string, myVerified = false) => {
+export const useRoom = (roomId: string, myVerified = false, initialParticipantCount = 5) => {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [participantCount, setParticipantCount] = useState(initialParticipantCount);
+  const [replayData, setReplayData] = useState<ReplayData | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -46,7 +48,15 @@ export const useRoom = (roomId: string, myVerified = false) => {
       });
     };
 
-    const onRoomEnded = () => router.replace("/lobby");
+    const onRoomEnded = (data: ReplayData) => {
+      // Show the replay card instead of immediately bouncing to lobby.
+      // The card's "Continue" button handles the navigation.
+      setReplayData(data);
+    };
+
+    const onParticipantLeft = () => {
+      setParticipantCount((prev) => Math.max(1, prev - 1));
+    };
 
     // ROOM_EXPIRED / NOT_PARTICIPANT are room-level errors: the user can no longer
     // send anything, so all pending messages are hopeless — remove them all.
@@ -72,12 +82,14 @@ export const useRoom = (roomId: string, myVerified = false) => {
     socket.on("connect", onReconnect);
     socket.on("messageReceived", onMessage);
     socket.on("roomEnded", onRoomEnded);
+    socket.on("participantLeft", onParticipantLeft);
     socket.on("appError", onAppError);
 
     return () => {
       socket.off("connect", onReconnect);
       socket.off("messageReceived", onMessage);
       socket.off("roomEnded", onRoomEnded);
+      socket.off("participantLeft", onParticipantLeft);
       socket.off("appError", onAppError);
     };
   }, [roomId, router]);
@@ -95,5 +107,10 @@ export const useRoom = (roomId: string, myVerified = false) => {
     [roomId, myVerified]
   );
 
-  return { messages, sendMessage };
+  const leaveRoom = useCallback(() => {
+    getSocket().emit("leaveRoom", { roomId });
+    router.replace("/lobby");
+  }, [roomId, router]);
+
+  return { messages, sendMessage, participantCount, leaveRoom, replayData };
 };

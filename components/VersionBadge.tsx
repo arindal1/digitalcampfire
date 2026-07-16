@@ -13,7 +13,7 @@ interface Props {
  * Renders the app version. Triple-click within 1.5 s to reveal the creator
  * credit for 3 seconds, then quietly revert.
  */
-export function VersionBadge({ version = "v0.6.0", className = "" }: Props) {
+export function VersionBadge({ version = "v0.8.0", className = "" }: Props) {
   const [revealed, setRevealed] = useState(false);
   const clickTimestamps = useRef<number[]>([]);
 

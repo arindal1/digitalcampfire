@@ -22,7 +22,8 @@ model User {
   languages String  // JSON-encoded array e.g. '["en","hi"]'
   age       Int
   gender    String  // "male" | "female" | "other"
-  verified  Boolean @default(false)
+  verified      Boolean @default(false)
+  campfireCount  Int     @default(0)  // how many completed campfire sessions
 
   sessions     Session[]
   accounts     Account[]
@@ -127,10 +128,13 @@ model Prompt {
 
 model Analytics {
   id               String   @id @default(cuid())
+  roomNumber       Int      @default(autoincrement())
   participantCount Int      @default(5)
   prompt           String
   closedAt         DateTime @default(now())
   status           String   @default("Closed")
+  heatmap          String?  // JSON-encoded number[15] — messages per minute
+  languages        String?  // JSON-encoded string[] — all participant languages
 
   @@map("analytics")
 }
