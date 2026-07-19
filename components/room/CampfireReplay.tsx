@@ -170,7 +170,7 @@ export function CampfireReplay({ data }: Props) {
     ctx.fillStyle = "#2A2A2A";
     ctx.font = "11px monospace";
     ctx.textAlign = "right";
-    ctx.fillText("digital-campfire.vercel.app", W - 48, H - 36);
+    ctx.fillText("digitalcampfire-production.up.railway.app", W - 48, H - 36);
 
     canvas.toBlob((blob) => {
       if (!blob) return;

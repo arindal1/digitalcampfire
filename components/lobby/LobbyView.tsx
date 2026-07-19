@@ -79,7 +79,7 @@ export function LobbyView({ username, languages, campfireCount }: Props) {
 
       {/* Bottom-right: version — triple-click to reveal creator credit */}
       <VersionBadge
-        version="v0.8.2"
+        version="v0.9.0"
         className="absolute bottom-5 right-6 z-20 text-xs text-secondary/40"
       />
 
